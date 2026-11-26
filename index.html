@@ -22,6 +22,10 @@ label{display:block;font-family:"Baloo 2",sans-serif;font-weight:700;font-size:1
 label small{font-family:"DM Sans",sans-serif;font-weight:400;font-size:.95rem}
 .field{margin-bottom:16px}
 input[type=text],input[type=tel],input[type=email]{width:100%;font:inherit;font-size:1.05rem;color:#000;background:#e9efff;border:2px solid var(--line);border-radius:14px;padding:13px 14px;outline:none}
+select{font:inherit;font-size:1.05rem;color:#000;background:#e9efff;border:2px solid var(--line);border-radius:14px;padding:13px 10px;outline:none;width:100%}
+select:focus{border-color:var(--pink);box-shadow:0 0 0 4px #fbd5e3}
+.row{display:flex;gap:10px}
+.row select:first-child{flex:0 0 32%}
 input:focus{border-color:var(--pink);box-shadow:0 0 0 4px #fbd5e3}
 .phone{display:flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--mint)}
 .phone:focus-within{border-color:var(--pink);box-shadow:0 0 0 4px #fbd5e3}
@@ -68,6 +72,21 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
         <label for="mail">Correo electrónico <small>(opcional)</small></label>
         <input id="mail" type="email" autocomplete="email" maxlength="80">
       </div>
+      <div class="field">
+        <label for="dia">¿Cuándo es tu cumpleaños? <small>(opcional)</small></label>
+        <div class="row">
+          <select id="dia" aria-label="Día"><option value="">Día</option></select>
+          <select id="mes" aria-label="Mes"><option value="">Mes</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="comida">Tu comida favorita de Zampa <small>(opcional)</small></label>
+        <input id="comida" type="text" maxlength="80" placeholder="Ej. Hamburguesa clásica">
+      </div>
+      <div class="field">
+        <label for="bebida">Tu bebida favorita de Zampa <small>(opcional)</small></label>
+        <input id="bebida" type="text" maxlength="80" placeholder="Ej. Café helado">
+      </div>
       <label class="check"><input id="ok" type="checkbox"><span class="box"></span><span>Acepto recibir promociones y novedades de Zampa por WhatsApp.</span></label>
       <button id="btn" type="submit" disabled>Quiero recibir promociones</button>
       <p class="msg" id="sendMsg" style="text-align:center"></p>
@@ -88,6 +107,11 @@ const ENDPOINT = "https://script.google.com/macros/s/AKfycbxDZz8e3_6ZCkiIlwhuUoq
 const $ = id => document.getElementById(id);
 const nombre = $("nombre"), tel = $("tel"), mail = $("mail"), ok = $("ok"), btn = $("btn");
 let tocoTel = false;
+
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+for (let i = 1; i <= 31; i++) $("dia").add(new Option(i, i));
+MESES.forEach((m, i) => $("mes").add(new Option(m.charAt(0).toUpperCase() + m.slice(1), i + 1)));
+const cumple = () => ($("dia").value && $("mes").value) ? $("dia").value + " de " + MESES[$("mes").value - 1] : "";
 
 const digits = () => tel.value.replace(/\D/g, "");
 const telValido = () => /^9\d{8}$/.test(digits());
@@ -114,6 +138,9 @@ $("f").addEventListener("submit", async e => {
     nombre: nombre.value.trim(),
     whatsapp: "+51" + digits(),
     correo: mail.value.trim(),
+    cumple: cumple(),
+    comida: $("comida").value.trim(),
+    bebida: $("bebida").value.trim(),
     acepta: "Sí"
   });
   try {
