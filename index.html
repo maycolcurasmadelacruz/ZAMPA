@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Únete a Zampa</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
 :root{--teal:#04918a;--ink:#05403d;--mint:#eef9f7;--pink:#e0185f;--line:#bfe3df;--err:#a8281f}
 *{box-sizing:border-box}
@@ -48,49 +50,75 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .legal{font-size:.8rem;margin:14px 4px 0;opacity:.75;text-align:center}
 </style>
 </head>
+
 <body>
 <main>
+
   <div class="logo">
-    <!-- Para usar tu logo real: <img src="logo.png" alt="Zampa Café & Burguer"> -->
-    <b>ZAMPA</b><span>CAFÉ &amp; BURGUER</span>
+    <b>ZAMPA</b>
+    <span>CAFÉ &amp; BURGUER</span>
   </div>
 
   <section id="registro">
     <h1>¡Únete a Zampa! 🍔</h1>
     <p class="sub">Déjanos tus datos y recibe promociones, novedades y beneficios exclusivos.</p>
+
     <form id="f" novalidate>
+
       <div class="field">
         <label for="nombre">Nombre</label>
         <input id="nombre" type="text" autocomplete="given-name" maxlength="60" required>
       </div>
+
       <div class="field">
         <label for="tel">Número de WhatsApp</label>
-        <div class="phone" id="phoneBox"><span>+51</span><input id="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="987 654 321" maxlength="11"></div>
+        <div class="phone" id="phoneBox">
+          <span>+51</span>
+          <input id="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="987 654 321" maxlength="11">
+        </div>
         <p class="msg" id="telMsg"></p>
       </div>
+
       <div class="field">
         <label for="mail">Correo electrónico <small>(opcional)</small></label>
         <input id="mail" type="email" autocomplete="email" maxlength="80">
       </div>
+
       <div class="field">
         <label for="dia">¿Cuándo es tu cumpleaños? <small>(opcional)</small></label>
         <div class="row">
-          <select id="dia" aria-label="Día"><option value="">Día</option></select>
-          <select id="mes" aria-label="Mes"><option value="">Mes</option></select>
+          <select id="dia" aria-label="Día">
+            <option value="">Día</option>
+          </select>
+          <select id="mes" aria-label="Mes">
+            <option value="">Mes</option>
+          </select>
         </div>
       </div>
+
       <div class="field">
         <label for="comida">Tu comida favorita de Zampa <small>(opcional)</small></label>
         <input id="comida" type="text" maxlength="80" placeholder="Ej. Hamburguesa clásica">
       </div>
+
       <div class="field">
         <label for="bebida">Tu bebida favorita de Zampa <small>(opcional)</small></label>
         <input id="bebida" type="text" maxlength="80" placeholder="Ej. Café helado">
       </div>
-      <label class="check"><input id="ok" type="checkbox"><span class="box"></span><span>Acepto recibir promociones y novedades de Zampa por WhatsApp.</span></label>
-      <button id="btn" type="submit" disabled>Quiero recibir promociones</button>
+
+      <label class="check">
+        <input id="ok" type="checkbox">
+        <span class="box"></span>
+        <span>Acepto recibir promociones y novedades de Zampa por WhatsApp.</span>
+      </label>
+
+      <button id="btn" type="submit" disabled>
+        Quiero recibir promociones
+      </button>
+
       <p class="msg" id="sendMsg" style="text-align:center"></p>
     </form>
+
     <p class="legal">Usaremos tus datos solo para enviarte promociones de Zampa. Puedes pedir que te quitemos de la lista cuando quieras.</p>
   </section>
 
@@ -98,60 +126,137 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
     <h2>¡Listo, ya eres parte de Zampa!</h2>
     <p>Pronto recibirás nuestras promociones por WhatsApp. ¡Gracias por unirte!</p>
   </section>
+
 </main>
 
 <script>
-// 1) Pega aquí la URL de tu Google Apps Script (termina en /exec)
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbxOD0sGvyxdke2XbOavyu00gnAOszRh_52p7k_UwdxELDivtGUAD-sfPGa6aeOS0viO/exec";
+
+// ==========================================
+// CONEXIÓN AUTOMÁTICA CON GOOGLE SHEETS
+// ==========================================
+
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbx2ZWS7SNNeIdR97oSNc1hOeXUuZgWduC83WloGN9ZORGhX2n6jQGG16r0UL8Z3C_kE/exec";
 
 const $ = id => document.getElementById(id);
-const nombre = $("nombre"), tel = $("tel"), mail = $("mail"), ok = $("ok"), btn = $("btn");
+
+const nombre = $("nombre");
+const tel = $("tel");
+const mail = $("mail");
+const ok = $("ok");
+const btn = $("btn");
+
 let tocoTel = false;
 
-const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
-for (let i = 1; i <= 31; i++) $("dia").add(new Option(i, i));
-MESES.forEach((m, i) => $("mes").add(new Option(m.charAt(0).toUpperCase() + m.slice(1), i + 1)));
-const cumple = () => ($("dia").value && $("mes").value) ? $("dia").value + " de " + MESES[$("mes").value - 1] : "";
+const MESES = [
+  "enero","febrero","marzo","abril","mayo","junio",
+  "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
+
+for (let i = 1; i <= 31; i++) {
+  $("dia").add(new Option(i, i));
+}
+
+MESES.forEach((m, i) => {
+  $("mes").add(new Option(
+    m.charAt(0).toUpperCase() + m.slice(1),
+    i + 1
+  ));
+});
+
+const cumple = () =>
+  ($("dia").value && $("mes").value)
+  ? $("dia").value + " de " + MESES[$("mes").value - 1]
+  : "";
 
 const digits = () => tel.value.replace(/\D/g, "");
+
 const telValido = () => /^9\d{8}$/.test(digits());
-const mailValido = () => mail.value.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail.value.trim());
+
+const mailValido = () =>
+  mail.value.trim() === "" ||
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail.value.trim());
 
 function refrescar() {
+
   const d = digits();
-  tel.value = d.replace(/(\d{3})(\d{3})?(\d{0,3})?/, (m, a, b, c) => [a, b, c].filter(Boolean).join(" "));
+
+  tel.value = d.replace(
+    /(\d{3})(\d{3})?(\d{0,3})?/,
+    (m, a, b, c) => [a, b, c].filter(Boolean).join(" ")
+  );
+
   const bad = tocoTel && !telValido();
+
   $("phoneBox").classList.toggle("bad", bad);
-  $("telMsg").textContent = bad ? "Ingresa 9 dígitos que empiecen con 9, por ejemplo 987 654 321." : "";
-  btn.disabled = !(nombre.value.trim().length >= 2 && telValido() && mailValido() && ok.checked);
+
+  $("telMsg").textContent = bad
+    ? "Ingresa 9 dígitos que empiecen con 9, por ejemplo 987 654 321."
+    : "";
+
+  btn.disabled = !(
+    nombre.value.trim().length >= 2 &&
+    telValido() &&
+    mailValido() &&
+    ok.checked
+  );
 }
-[nombre, tel, mail, ok].forEach(el => el.addEventListener("input", refrescar));
+
+[nombre, tel, mail, ok].forEach(el => {
+  el.addEventListener("input", refrescar);
+});
+
 ok.addEventListener("change", refrescar);
-tel.addEventListener("blur", () => { tocoTel = true; refrescar(); });
+
+tel.addEventListener("blur", () => {
+  tocoTel = true;
+  refrescar();
+});
+
+// ==========================================
+// ENVÍO DE DATOS A GOOGLE SHEETS
+// ==========================================
 
 $("f").addEventListener("submit", async e => {
+
   e.preventDefault();
+
   if (btn.disabled) return;
+
   btn.disabled = true;
   $("sendMsg").textContent = "Enviando…";
+
   const datos = new URLSearchParams({
     nombre: nombre.value.trim(),
     whatsapp: "+51" + digits(),
     correo: mail.value.trim(),
-    cumple: cumple(),
+    cumpleanos: cumple(),
     comida: $("comida").value.trim(),
     bebida: $("bebida").value.trim(),
-    acepta: "Sí"
+    consentimiento: "Sí"
   });
+
   try {
-    await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body: datos });
+
+    await fetch(ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      body: datos
+    });
+
     $("registro").style.display = "none";
     $("gracias").style.display = "block";
+
   } catch (err) {
-    $("sendMsg").textContent = "No pudimos enviar tus datos. Revisa tu conexión e inténtalo otra vez.";
-    btn.disabled = false;
+
+    $("sendMsg").textContent =
+      "No pudimos enviar tus datos. Revisa tu conexión e inténtalo otra vez.";
+
+    refrescar();
   }
+
 });
+
 </script>
 </body>
 </html>
+
